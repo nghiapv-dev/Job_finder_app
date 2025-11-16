@@ -5,9 +5,13 @@ import 'config/theme/app_theme.dart';
 import 'core/repositories/auth_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/screens/welcome_screen.dart';
+import 'features/home/screens/welcome_home_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/reset_password_screen.dart';
+import 'features/auth/screens/job_preference_screen.dart';
+import 'features/auth/screens/profile_setup_screen.dart';
+import 'features/auth/screens/profile_confirm_screen.dart';
 import 'features/home/screens/home_screen.dart';
 
 void main() async {
@@ -41,6 +45,10 @@ final _router = GoRouter(
       builder: (context, state) => const WelcomeScreen(),
     ),
     GoRoute(
+      path: '/welcome-home',
+      builder: (context, state) => const WelcomeHomeScreen(),
+    ),
+    GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
     ),
@@ -51,6 +59,18 @@ final _router = GoRouter(
     GoRoute(
       path: '/reset-password',
       builder: (context, state) => const ResetPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/job-preference',
+      builder: (context, state) => const JobPreferenceScreen(),
+    ),
+    GoRoute(
+      path: '/profile-setup',
+      builder: (context, state) => const ProfileSetupScreen(),
+    ),
+    GoRoute(
+      path: '/profile-confirm',
+      builder: (context, state) => const ProfileConfirmScreen(),
     ),
     GoRoute(
       path: '/home',
