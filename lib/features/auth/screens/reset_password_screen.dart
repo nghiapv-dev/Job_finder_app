@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../config/theme/app_colors.dart';
-import '../../bloc/auth_bloc.dart';
+import '../bloc/auth_bloc.dart';
 
-class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({super.key});
 
   @override
-  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _ResetPasswordPageState extends State<ResetPasswordPage> {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _codeController = TextEditingController();

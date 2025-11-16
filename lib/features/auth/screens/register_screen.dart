@@ -2,35 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../config/theme/app_colors.dart';
-import '../../bloc/auth_bloc.dart';
+import '../bloc/auth_bloc.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _fullNameController = TextEditingController();
   bool _obscurePassword = true;
-  bool _rememberMe = false;
+  bool _agreeToTerms = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _fullNameController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleRegister() {
     if (_formKey.currentState!.validate()) {
+      if (!_agreeToTerms) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please agree to Terms and Conditions'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      
       context.read<AuthBloc>().add(
-            AuthLoginRequested(
+            AuthRegisterRequested(
               email: _emailController.text.trim(),
               password: _passwordController.text,
+              fullName: _fullNameController.text.trim(),
             ),
           );
     }
@@ -83,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                   
                   // Title
                   const Text(
-                    'Sign in to your account',
+                    'Sign up for free',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -92,6 +105,76 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   
                   const SizedBox(height: 32),
+                  
+                  // Full Name Field
+                  const Text(
+                    'Full Name',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _fullNameController,
+                    decoration: InputDecoration(
+                      hintText: 'Full Name',
+                      hintStyle: const TextStyle(
+                        color: AppColors.textHint,
+                        fontSize: 14,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.border,
+                          width: 1,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.border,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.error,
+                          width: 1,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.error,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Full name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  
+                  const SizedBox(height: 20),
                   
                   // Email Field
                   const Text(
@@ -254,46 +337,49 @@ class _LoginPageState extends State<LoginPage> {
                   
                   const SizedBox(height: 16),
                   
-                  // Remember Me & Forgot Password
+                  // Terms & Conditions
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: Checkbox(
-                              value: _rememberMe,
-                              onChanged: (value) {
-                                setState(() {
-                                  _rememberMe = value ?? false;
-                                });
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _agreeToTerms,
+                          onChanged: (value) {
+                            setState(() {
+                              _agreeToTerms = value ?? false;
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Wrap(
+                          children: [
+                            const Text(
+                              'I agree to the ',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Remember me',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
+                            GestureDetector(
+                              onTap: () {
+                                // Show terms dialog
+                              },
+                              child: const Text(
+                                'Terms and Conditions',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () => context.push('/reset-password'),
-                        child: const Text(
-                          'Forgot password?',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          ],
                         ),
                       ),
                     ],
@@ -301,7 +387,7 @@ class _LoginPageState extends State<LoginPage> {
                   
                   const SizedBox(height: 24),
                   
-                  // Login Button
+                  // Sign Up Button
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       final isLoading = state is AuthLoading;
@@ -310,7 +396,7 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: isLoading ? null : _handleLogin,
+                          onPressed: isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -329,7 +415,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 )
                               : const Text(
-                                  'Sign in',
+                                  'Sign up',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -368,15 +454,20 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            context.read<AuthBloc>().add(const AuthGoogleLoginRequested());
+                            context.read<AuthBloc>().add(const AuthFacebookLoginRequested());
                           },
-                          icon: Image.asset(
-                            'assets/icons/facebook.png',
+                          icon: Container(
                             width: 20,
                             height: 20,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.facebook, size: 20);
-                            },
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF1877F2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.facebook,
+                              size: 16,
+                              color: Colors.white,
+                            ),
                           ),
                           label: const Text('Facebook'),
                           style: OutlinedButton.styleFrom(
@@ -394,13 +485,23 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () {
                             context.read<AuthBloc>().add(const AuthGoogleLoginRequested());
                           },
-                          icon: Image.asset(
-                            'assets/icons/google.png',
+                          icon: Container(
                             width: 20,
                             height: 20,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.g_mobiledata, size: 20);
-                            },
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'G',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF4285F4),
+                                ),
+                              ),
+                            ),
                           ),
                           label: const Text('Google'),
                           style: OutlinedButton.styleFrom(
@@ -417,26 +518,26 @@ class _LoginPageState extends State<LoginPage> {
                   
                   const SizedBox(height: 24),
                   
-                  // Sign Up Link
+                  // Sign In Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "Don't have an account? ",
+                        "Already have an account? ",
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       TextButton(
-                        onPressed: () => context.go('/register'),
+                        onPressed: () => context.go('/login'),
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(0, 0),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: const Text(
-                          'Sign up',
+                          'Sign in',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.primary,

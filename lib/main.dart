@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'config/theme/app_theme.dart';
 import 'core/repositories/auth_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
-import 'features/auth/presentation/pages/welcome_page.dart';
-import 'features/auth/presentation/pages/login_page.dart';
-import 'features/auth/presentation/pages/register_page.dart';
-import 'features/auth/presentation/pages/reset_password_page.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'features/auth/screens/welcome_screen.dart';
+import 'features/auth/screens/login_screen.dart';
+import 'features/auth/screens/register_screen.dart';
+import 'features/auth/screens/reset_password_screen.dart';
+import 'features/home/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,23 +38,23 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/welcome',
-      builder: (context, state) => const WelcomePage(),
+      builder: (context, state) => const WelcomeScreen(),
     ),
     GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: '/register',
-      builder: (context, state) => const RegisterPage(),
+      builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
       path: '/reset-password',
-      builder: (context, state) => const ResetPasswordPage(),
+      builder: (context, state) => const ResetPasswordScreen(),
     ),
     GoRoute(
       path: '/home',
-      builder: (context, state) => const HomePage(),
+      builder: (context, state) => const HomeScreen(),
     ),
   ],
 );
