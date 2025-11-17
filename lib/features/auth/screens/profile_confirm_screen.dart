@@ -57,10 +57,12 @@ class ProfileConfirmScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.primary, width: 2),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://via.placeholder.com/150'),
-                        fit: BoxFit.cover,
-                      ),
+                      color: AppColors.primary.withOpacity(0.1),
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: AppColors.primary,
+                      size: 50,
                     ),
                   ),
                   Positioned(

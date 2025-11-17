@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../config/theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,24 +23,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 _buildHeader(),
-                
                 const SizedBox(height: 24),
-                
-                // Search Bar
                 _buildSearchBar(),
-                
                 const SizedBox(height: 24),
-                
-                // Tips for you section
-                _buildSectionHeader('Tips for you', onSeeAll: () {}),
+                _buildSectionHeader('Tips for you', onSeeAll: () {
+                  context.push('/tips-list');
+                }),
                 const SizedBox(height: 16),
                 _buildTipsSection(),
-                
                 const SizedBox(height: 24),
-                
-                // Job Recommendation section
                 _buildSectionHeader('Job Recommendation', onSeeAll: () {}),
                 const SizedBox(height: 16),
                 _buildJobRecommendations(),
@@ -55,22 +48,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        // Avatar
         Container(
           width: 50,
           height: 50,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.primary, width: 2),
-            image: const DecorationImage(
-              image: NetworkImage('https://via.placeholder.com/150'),
-              fit: BoxFit.cover,
-            ),
+            color: AppColors.primary.withOpacity(0.1),
+          ),
+          child: const Icon(
+            Icons.person,
+            color: AppColors.primary,
+            size: 28,
           ),
         ),
         const SizedBox(width: 12),
-        
-        // Greeting
         const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,44 +78,45 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        
-        // Notification icon
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              const Center(
-                child: Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.textPrimary,
-                  size: 24,
+        GestureDetector(
+          onTap: () => context.push('/notification'),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+              ],
+            ),
+            child: Stack(
+              children: [
+                const Center(
+                  child: Icon(
+                    Icons.notifications_outlined,
+                    color: AppColors.textPrimary,
+                    size: 24,
                   ),
                 ),
-              ),
-            ],
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -144,6 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       child: TextField(
+        readOnly: true,
+        onTap: () => context.push('/job-search'),
         decoration: InputDecoration(
           hintText: 'Search',
           hintStyle: TextStyle(
@@ -151,13 +146,16 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 14,
           ),
           prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-          suffixIcon: Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
+          suffixIcon: GestureDetector(
+            onTap: () => context.push('/job-search'),
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.tune, color: Colors.white, size: 20),
             ),
-            child: const Icon(Icons.tune, color: Colors.white, size: 20),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -216,85 +214,96 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: tips.length,
         itemBuilder: (context, index) {
           final tip = tips[index];
-          return Container(
-            width: 280,
-            margin: EdgeInsets.only(right: index < tips.length - 1 ? 16 : 0),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: tip['gradient'] as List<Color>,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          return GestureDetector(
+            onTap: () {
+              context.push('/tips-detail', extra: {
+                'title': tip['title'] as String,
+                'author': 'Sarah Bolinas',
+                'authorTitle': 'Head of Human Capital at Facebook',
+                'color': (tip['gradient'] as List<Color>)[0],
+                'imageUrl': '',
+              });
+            },
+            child: Container(
+              width: 280,
+              margin: EdgeInsets.only(right: index < tips.length - 1 ? 16 : 0),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: tip['gradient'] as List<Color>,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
               ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: Text(
-                          tip['title'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            height: 1.3,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: Text(
+                            tip['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              height: 1.3,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'Read more',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Read more',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: -10,
+                    bottom: -10,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
                       ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  right: -10,
-                  bottom: -10,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.1),
                     ),
                   ),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 20,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      size: 40,
-                      color: Colors.white,
+                  Positioned(
+                    right: 10,
+                    top: 20,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.2),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -307,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'title': 'UI/UX Designer',
         'company': 'Google',
-        'salary': '\$8,000',
+        'salary': '\,000',
         'type': 'Full time',
         'logo': Icons.business,
         'color': const Color(0xFFFF6B6B),
@@ -315,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'title': 'Financial Planner',
         'company': 'Visa',
-        'salary': '\$3,300',
+        'salary': '\,300',
         'type': 'Part time',
         'logo': Icons.account_balance,
         'color': const Color(0xFF4B7BF5),
@@ -324,21 +333,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Column(
       children: jobs.map((job) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
+        return GestureDetector(
+          onTap: () {
+            context.push('/job-detail', extra: job);
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
             children: [
               Container(
                 width: 50,
@@ -368,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${job['company']} • ${job['type']}',
+                      '${job['company']} â€¢ ${job['type']}',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey[600],
@@ -392,6 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 size: 24,
               ),
             ],
+          ),
           ),
         );
       }).toList(),
