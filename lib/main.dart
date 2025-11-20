@@ -12,13 +12,25 @@ import 'features/auth/screens/reset_password_screen.dart';
 import 'features/auth/screens/job_preference_screen.dart';
 import 'features/auth/screens/profile_setup_screen.dart';
 import 'features/auth/screens/profile_confirm_screen.dart';
-import 'features/job_seeker/screens/home_screen.dart';
-import 'features/job_seeker/screens/notification_screen.dart';
-import 'features/job_seeker/screens/tips_list_screen.dart';
-import 'features/job_seeker/screens/tips_detail_screen.dart';
-import 'features/job_seeker/screens/job_search_screen.dart';
-import 'features/job_seeker/screens/job_detail_screen.dart';
-import 'features/job_seeker/screens/upload_resume_screen.dart';
+// Các màn hình Home
+import 'features/job_seeker/home/home_screen.dart';
+import 'features/job_seeker/home/notification_screen.dart';
+import 'features/job_seeker/home/tips_list_screen.dart';
+import 'features/job_seeker/home/tips_detail_screen.dart';
+import 'features/job_seeker/home/job_search_screen.dart';
+import 'features/job_seeker/home/job_detail_screen.dart';
+import 'features/job_seeker/home/upload_resume_screen.dart';
+import 'features/job_seeker/home/job_recommendation_screen.dart';
+// Các màn hình Applications
+import 'features/job_seeker/applications/applications_screen.dart';
+import 'features/job_seeker/applications/application_detail_screen.dart';
+// Các màn hình Saved Jobs
+import 'features/job_seeker/saved_jobs/saved_jobs_screen.dart';
+// Các màn hình Chat
+import 'features/job_seeker/chat/chat_box_screen.dart';
+import 'features/job_seeker/chat/chat_detail_screen.dart';
+// Các màn hình Profile
+import 'features/job_seeker/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,7 +54,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// GoRouter Configuration
+// Cấu hình GoRouter
 final _router = GoRouter(
   initialLocation: '/home',
   routes: [
@@ -104,6 +116,10 @@ final _router = GoRouter(
       builder: (context, state) => const JobSearchScreen(),
     ),
     GoRoute(
+      path: '/job-recommendation',
+      builder: (context, state) => const JobRecommendationScreen(),
+    ),
+    GoRoute(
       path: '/job-detail',
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
@@ -120,6 +136,40 @@ final _router = GoRouter(
           jobData: extra,
         );
       },
+    ),
+    GoRoute(
+      path: '/applications',
+      builder: (context, state) => const ApplicationsScreen(),
+    ),
+    GoRoute(
+      path: '/application-detail',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ApplicationDetailScreen(
+          applicationData: extra ?? {},
+        );
+      },
+    ),
+    GoRoute(
+      path: '/saved-jobs',
+      builder: (context, state) => const SavedJobsScreen(),
+    ),
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) => const ChatBoxScreen(),
+    ),
+    GoRoute(
+      path: '/chat-detail',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ChatDetailScreen(
+          chatData: extra ?? {},
+        );
+      },
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
   ],
 );

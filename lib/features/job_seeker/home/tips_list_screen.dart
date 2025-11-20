@@ -95,69 +95,89 @@ class TipsListScreen extends StatelessWidget {
         ),
         child: Stack(
           children: [
+            // Person illustration area
             Positioned(
               right: 0,
               bottom: 0,
               top: 0,
+              width: 150,
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(16),
                   bottomRight: Radius.circular(16),
                 ),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 120,
-                      color: Colors.white.withOpacity(0.2),
-                      child: const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
+                child: Container(
+                  color: Colors.white.withOpacity(0.05),
+                  child: Stack(
+                    children: [
+                      // Background circle decoration
+                      Positioned(
+                        right: -30,
+                        bottom: -20,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                        ),
                       ),
-                    );
-                  },
+                      // Person icon
+                      Positioned(
+                        right: 10,
+                        bottom: 0,
+                        child: Icon(
+                          Icons.person,
+                          size: 120,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: Text(
+            // Text content area
+            Positioned(
+              left: 20,
+              top: 20,
+              bottom: 20,
+              child: SizedBox(
+                width: 180,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
                       title,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
+                        height: 1.3,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Read more',
-                      style: TextStyle(
+                    const SizedBox(height: 8),
+                    Text(
+                      author,
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      authorTitle,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 11,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
