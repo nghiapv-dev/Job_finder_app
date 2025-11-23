@@ -31,13 +31,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
       );
 
-      await StorageService.saveToken(result['token']);
-      await StorageService.saveUser(result['user'].toString());
+      // Dữ liệu trả về từ repository bây giờ là một Map chứa 'user' và 'token'
+      final user = result['user'];
+      final token = result['token'];
 
-      emit(AuthAuthenticated(
-        user: result['user'],
-        token: result['token'],
-      ));
+      // Kiểm tra null trước khi sử dụng
+      if (user != null && token != null) {
+        await StorageService.saveToken(token);
+        await StorageService.saveUser(user.toString()); // Cân nhắc dùng jsonEncode
+
+        emit(AuthAuthenticated(
+          user: user,
+          token: token,
+        ));
+      } else {
+        // Nếu một trong hai là null, coi như đăng nhập thất bại
+        emit(const AuthError(message: 'Login response is invalid.'));
+      }
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -53,7 +63,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         fullName: event.fullName,
-        phoneNumber: event.phoneNumber,
       );
 
       await StorageService.saveToken(result['token']);

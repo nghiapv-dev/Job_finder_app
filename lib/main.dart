@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
 
 // Cấu hình GoRouter
 final _router = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/welcome',
   routes: [
     GoRoute(
       path: '/welcome',

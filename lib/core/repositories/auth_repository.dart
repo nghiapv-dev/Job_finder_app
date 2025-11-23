@@ -21,13 +21,12 @@ class AuthRepository {
       );
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        final token = response.data['data']['token'];
-        final refreshToken = response.data['data']['refreshToken'];
+        final data = response.data['data'];
+        final token = data['token'];
         
         await StorageService.saveToken(token);
-        await StorageService.saveRefreshToken(refreshToken);
         
-        return response.data['data']['user'];
+        return data; // Trả về toàn bộ object data (chứa user và token)
       } else {
         throw Exception(response.data['message'] ?? 'Login failed');
       }
@@ -41,7 +40,6 @@ class AuthRepository {
     required String email,
     required String password,
     required String fullName,
-    String? phoneNumber,
   }) async {
     try {
       final response = await _dioClient.dio.post(
@@ -50,7 +48,6 @@ class AuthRepository {
           'email': email,
           'password': password,
           'fullName': fullName,
-          'phoneNumber': phoneNumber,
         },
       );
 
