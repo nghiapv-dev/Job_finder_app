@@ -1,4 +1,4 @@
-﻿services:
+services:
   postgres:
     image: postgres:16-alpine
     container_name: job-finder-postgres
@@ -35,15 +35,6 @@
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-  adminer:
-    image: adminer
-    container_name: job-finder-adminer
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
 
 volumes:
   postgres_data:
