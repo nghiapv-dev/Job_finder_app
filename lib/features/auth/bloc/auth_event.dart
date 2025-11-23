@@ -74,3 +74,31 @@ class AuthResetPasswordRequested extends AuthEvent {
   @override
   List<Object?> get props => [email, code, newPassword];
 }
+
+class AuthRoleSelected extends AuthEvent {
+  final String role;
+
+  const AuthRoleSelected(this.role);
+
+  @override
+  List<Object?> get props => [role];
+}
+
+class AuthProfileUpdateRequested extends AuthEvent {
+  final String? fullName;
+  final String? dateOfBirth;
+  final String? address;
+  final String? occupation;
+  final String? avatarUrl;
+
+  const AuthProfileUpdateRequested({
+    this.fullName,
+    this.dateOfBirth,
+    this.address,
+    this.occupation,
+    this.avatarUrl,
+  });
+
+  @override
+  List<Object?> get props => [fullName, dateOfBirth, address, occupation, avatarUrl];
+}

@@ -146,6 +146,53 @@ class AuthRepository {
     }
   }
 
+  /// Update user role
+  Future<void> updateUserRole({required String role}) async {
+    try {
+      final response = await _dioClient.dio.put(
+        ApiConstants.updateProfile,
+        data: {'role': role},
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(response.data['message'] ?? 'Failed to update role');
+      }
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
+  }
+
+  /// Update user profile
+  Future<Map<String, dynamic>> updateUserProfile({
+    String? fullName,
+    String? dateOfBirth,
+    String? address,
+    String? occupation,
+    String? avatarUrl,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (fullName != null) data['full_name'] = fullName;
+      if (dateOfBirth != null) data['date_of_birth'] = dateOfBirth;
+      if (address != null) data['address'] = address;
+      if (occupation != null) data['occupation'] = occupation;
+      if (avatarUrl != null) data['avatar_url'] = avatarUrl;
+
+      final response = await _dioClient.dio.put(
+        ApiConstants.updateProfile,
+        data: data,
+      );
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return response.data['data']['user'];
+      } else {
+        throw Exception(response.data['message'] ?? 'Failed to update profile');
+      }
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
+  }
+
   /// Get current user profile
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {

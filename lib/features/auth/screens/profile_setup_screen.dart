@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../config/theme/app_colors.dart';
+import '../../../core/utils/storage_service.dart';
+import '../bloc/auth_bloc.dart';
+import 'dart:convert';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -16,6 +20,41 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _dateOfBirthController = TextEditingController();
   final _addressController = TextEditingController();
   final _occupationController = TextEditingController();
+  
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userString = await StorageService.getUser();
+      if (userString != null) {
+        final userData = json.decode(userString);
+        
+        setState(() {
+          _fullNameController.text = userData['full_name'] ?? '';
+          _emailController.text = userData['email'] ?? '';
+          _dateOfBirthController.text = userData['date_of_birth'] ?? '';
+          _addressController.text = userData['address'] ?? '';
+          _occupationController.text = userData['occupation'] ?? '';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -54,8 +93,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   void _handleConfirm() {
     if (_formKey.currentState!.validate()) {
-      // Navigate to confirmation screen
-      context.push('/profile-confirm');
+      // Gửi event cập nhật profile
+      context.read<AuthBloc>().add(
+        AuthProfileUpdateRequested(
+          fullName: _fullNameController.text.trim(),
+          dateOfBirth: _dateOfBirthController.text.trim(),
+          address: _addressController.text.trim(),
+          occupation: _occupationController.text.trim(),
+        ),
+      );
     }
   }
 
@@ -97,10 +143,37 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthProfileUpdateSuccess) {
+            // Cập nhật thành công, chuyển đến home screen
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile updated successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            context.go('/home');
+          } else if (state is AuthError) {
+            // Hiển thị lỗi
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primary,
+              ),
+            )
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
             key: _formKey,
             child: Column(
               children: [
@@ -240,33 +313,49 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 32),
                 
                 // Confirm Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _handleConfirm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final isLoading = state is AuthLoading;
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : _handleConfirm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Confirm',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-                    ),
-                    child: const Text(
-                      'Confirm',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
+            ), // Column
+          ), // Form
+        ), // SingleChildScrollView
+      ), // SafeArea
+      ), // BlocListener child
+    ); // Scaffold
   }
 
   Widget _buildLabel(String text) {
@@ -313,3 +402,4 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 }
+

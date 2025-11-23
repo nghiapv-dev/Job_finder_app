@@ -58,3 +58,21 @@ class AuthResetPasswordSuccess extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class AuthRoleUpdateSuccess extends AuthState {
+  final String role;
+
+  const AuthRoleUpdateSuccess({required this.role});
+
+  @override
+  List<Object?> get props => [role];
+}
+
+class AuthProfileUpdateSuccess extends AuthState {
+  final Map<String, dynamic> user;
+
+  const AuthProfileUpdateSuccess({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}

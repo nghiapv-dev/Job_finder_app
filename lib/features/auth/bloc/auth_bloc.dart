@@ -18,6 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckStatus>(_onCheckStatus);
     on<AuthForgotPasswordRequested>(_onForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onResetPasswordRequested);
+    on<AuthRoleSelected>(_onRoleSelected);
+    on<AuthProfileUpdateRequested>(_onProfileUpdateRequested);
   }
 
   Future<void> _onLoginRequested(
@@ -180,6 +182,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         newPassword: event.newPassword,
       );
       emit(AuthResetPasswordSuccess(message: message));
+    } catch (e) {
+      emit(AuthError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onRoleSelected(
+    AuthRoleSelected event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      // Cập nhật vai trò của người dùng lên server
+      await authRepository.updateUserRole(role: event.role);
+      
+      // Lưu vai trò vào local storage
+      await StorageService.saveUserRole(event.role);
+      
+      emit(AuthRoleUpdateSuccess(role: event.role));
+    } catch (e) {
+      emit(AuthError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onProfileUpdateRequested(
+    AuthProfileUpdateRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      // Cập nhật profile người dùng lên server
+      final updatedUser = await authRepository.updateUserProfile(
+        fullName: event.fullName,
+        dateOfBirth: event.dateOfBirth,
+        address: event.address,
+        occupation: event.occupation,
+        avatarUrl: event.avatarUrl,
+      );
+      
+      // Lưu thông tin user đã cập nhật vào local storage
+      await StorageService.saveUser(updatedUser.toString());
+      
+      emit(AuthProfileUpdateSuccess(user: updatedUser));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }

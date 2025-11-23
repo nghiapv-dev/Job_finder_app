@@ -5,7 +5,7 @@ import 'config/theme/app_theme.dart';
 import 'core/repositories/auth_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/shared/screens/welcome_screen.dart';
-import 'features/shared/screens/welcome_home_screen.dart';
+import 'features/auth/screens/role_selection_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/reset_password_screen.dart';
@@ -63,8 +63,8 @@ final _router = GoRouter(
       builder: (context, state) => const WelcomeScreen(),
     ),
     GoRoute(
-      path: '/welcome-home',
-      builder: (context, state) => const WelcomeHomeScreen(),
+      path: '/select-role',
+      builder: (context, state) => const RoleSelectionScreen(),
     ),
     GoRoute(
       path: '/login',
