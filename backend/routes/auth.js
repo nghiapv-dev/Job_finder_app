@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email đã được đăng ký.' });
     }
-    const user = await User.create({ email, password, full_name: fullName, role: role || 'job_seeker' });
+    const user = await User.create({ email, password_hash: password, role: role || 'job_seeker' });
     const token = generateToken(user.id);
     res.status(201).json({ success: true, message: 'Đăng ký thành công!', data: { user: user.toJSON(), token } });
   } catch (error) {
@@ -59,6 +59,31 @@ router.get('/me', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Lỗi khi lấy thông tin user:', error);
     res.status(500).json({ success: false, message: 'Lỗi server.', error: error.message });
+  }
+});
+
+router.put('/me', authenticate, async (req, res) => {
+  try {
+    const { role, full_name, date_of_birth, address, occupation, avatar_url } = req.body;
+    const updateData = {};
+    
+    if (role) updateData.role = role;
+    if (full_name) updateData.full_name = full_name;
+    if (date_of_birth) updateData.date_of_birth = date_of_birth;
+    if (address) updateData.address = address;
+    if (occupation) updateData.occupation = occupation;
+    if (avatar_url) updateData.avatar_url = avatar_url;
+    
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ success: false, message: 'Không có dữ liệu để cập nhật.' });
+    }
+    
+    await req.user.update(updateData);
+    
+    res.status(200).json({ success: true, message: 'Cập nhật thành công!', data: { user: req.user.toJSON() } });
+  } catch (error) {
+    console.error('Lỗi khi cập nhật user:', error);
+    res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật.', error: error.message });
   }
 });
 
