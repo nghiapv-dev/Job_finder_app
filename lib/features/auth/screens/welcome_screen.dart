@@ -47,7 +47,7 @@ class WelcomeScreen extends StatelessWidget {
               
               // Tagline
               const Text(
-                'The best place to job your inquiry',
+                'Nơi kết nối tốt nhất giữa nhà tuyển dụng và người tìm việc.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -71,7 +71,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Get Started',
+                    'Bắt đầu',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

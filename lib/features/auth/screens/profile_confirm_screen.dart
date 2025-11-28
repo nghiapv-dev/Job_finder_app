@@ -32,7 +32,7 @@ class ProfileConfirmScreen extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Text(
-              'Profile',
+              'Hồ sơ',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -149,7 +149,7 @@ class ProfileConfirmScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Confirm',
+                    'Xác nhận',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

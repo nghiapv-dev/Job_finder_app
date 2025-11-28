@@ -52,7 +52,7 @@ class _JobPreferenceScreenState extends State<JobPreferenceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'What job you want?',
+                'Bạn muốn công việc gì?',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -61,7 +61,7 @@ class _JobPreferenceScreenState extends State<JobPreferenceScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Choose 3-5 job categories and we\'ll optimize the job\nvacancy for you.',
+                'Chọn 3-5 danh mục công việc và chúng tôi sẽ tối ưu hóa vị trí việc làm cho bạn.',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,

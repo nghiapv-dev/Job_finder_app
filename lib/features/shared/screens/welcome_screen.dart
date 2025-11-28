@@ -8,80 +8,117 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              
-              // Logo
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFEEF2FF),
+              Color(0xFFFFFFFF),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                const Spacer(),
+
+                // 🌟 Logo Circle with Glow
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary.withOpacity(0.10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.2),
+                        blurRadius: 25,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.work_outline_rounded,
+                    size: 70,
+                    color: AppColors.primary,
+                  ),
                 ),
-                child: Icon(
-                  Icons.work_outline_rounded,
-                  size: 60,
-                  color: AppColors.primary,
+
+                const SizedBox(height: 40),
+
+                // 🌟 App Name
+                Text(
+                  'Gawean',
+                  style: TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // App Name
-              const Text(
-                'Gawean',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+
+                const SizedBox(height: 18),
+
+                // 🌟 Tagline text (more premium)
+                Text(
+                  'Nơi kết nối tốt nhất giữa\nnhà tuyển dụng và người tìm việc.',
+                  style: TextStyle(
+                    fontSize: 17,
+                    height: 1.5,
+                    color: AppColors.textSecondary.withOpacity(0.9),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Tagline
-              const Text(
-                'The best place to job your inquiry',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const Spacer(),
-              
-              // Get Started Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/login'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+
+                const Spacer(),
+
+                // 🌟 Get Started Button (bigger + rounded)
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => context.push('/login'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shadowColor: AppColors.primary.withOpacity(0.4),
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Bắt đầu ngay',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Get Started',
+                ),
+
+                const SizedBox(height: 25),
+
+                // 🌟 Create Account Text Button
+                TextButton(
+                  onPressed: () => context.push('/register'),
+                  child: Text(
+                    "Bạn chưa có tài khoản? Đăng ký",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 24),
-            ],
+
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

@@ -53,7 +53,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 const Text(
-                  'Welcome!',
+                  'Chào mừng!',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -62,7 +62,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Please select your role',
+                  'Vui lòng chọn vai trò của bạn',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -106,7 +106,7 @@ class RoleSelectionScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 16),
                             const Text(
-                              'I am a Job Seeker',
+                              'Tôi là một người tìm việc',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -127,7 +127,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Recruiter feature coming soon!'),
+                          content: Text('Tính năng nhà tuyển dụng sắp ra mắt!'),
                           backgroundColor: AppColors.primary,
                         ),
                       );
@@ -158,7 +158,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         const Text(
-                          'I am a Recruiter',
+                          'Tôi là một nhà tuyển dụng',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

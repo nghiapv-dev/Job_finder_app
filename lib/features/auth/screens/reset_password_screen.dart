@@ -31,7 +31,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     if (_emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter your email'),
+          content: Text('Vui lòng nhập email của bạn'),
           backgroundColor: Colors.red,
         ),
       );
@@ -68,7 +68,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Reset code sent to your email'),
+                content: Text('Mã đã được gửi đến email của bạn'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -135,8 +135,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   // Description
                   Text(
                     _codeSent
-                        ? 'Enter the verification code sent to your email'
-                        : 'Enter your email address to receive a reset code',
+                        ? 'Nhập mã xác minh đã được gửi đến email của bạn'
+                        : 'Nhập địa chỉ email của bạn để nhận mã code đặt lại mật khẩu',
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -218,10 +218,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Email is required';
+                        return 'Email là bắt buộc';
                       }
                       if (!value.contains('@')) {
-                        return 'Please enter a valid email';
+                        return 'Vui lòng nhập email hợp lệ';
                       }
                       return null;
                     },
@@ -232,7 +232,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     
                     // Verification Code Field
                     const Text(
-                      'Verification Code',
+                      'Mã xác minh',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -244,7 +244,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       controller: _codeController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: 'Verification Code',
+                        hintText: 'Mã xác minh',
                         hintStyle: const TextStyle(
                           color: AppColors.textHint,
                           fontSize: 14,
@@ -293,7 +293,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Verification code is required';
+                          return 'Mã xác minh là bắt buộc';
                         }
                         return null;
                       },
@@ -303,7 +303,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     
                     // New Password Field
                     const Text(
-                      'New Password',
+                      'Mật khẩu mới',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -315,7 +315,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       controller: _newPasswordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        hintText: 'New Password',
+                        hintText: 'Mật khẩu mới',
                         hintStyle: const TextStyle(
                           color: AppColors.textHint,
                           fontSize: 14,
@@ -377,10 +377,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Password is required';
+                          return 'Mật khẩu là bắt buộc';
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return 'Mật khẩu phải có ít nhất 6 ký tự';
                         }
                         return null;
                       },
@@ -440,7 +440,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       child: TextButton(
                         onPressed: _handleSendCode,
                         child: const Text(
-                          'Didn\'t receive code? Resend',
+                          'Không nhận được mã? Gửi lại',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.primary,
@@ -458,7 +458,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "Remember your password? ",
+                        "Bạn đã nhớ mật khẩu? ",
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
@@ -472,7 +472,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: const Text(
-                          'Sign in',
+                          'Đăng nhập',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.primary,
