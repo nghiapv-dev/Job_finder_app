@@ -19,6 +19,14 @@ const User = sequelize.define('User', {
     allowNull: false, 
     validate: { len: { args: [6], msg: 'Mật khẩu phải có ít nhất 6 ký tự' } } 
   },
+  full_name: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  avatar_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true
+  },
   role: { 
     type: DataTypes.ENUM('job_seeker', 'recruiter', 'admin'), 
     allowNull: false, 

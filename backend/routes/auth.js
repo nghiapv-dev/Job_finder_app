@@ -1,8 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads/avatars');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh (jpeg, jpg, png, gif, webp)'));
+    }
+  }
+});
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -18,7 +53,12 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email đã được đăng ký.' });
     }
-    const user = await User.create({ email, password_hash: password, role: role || 'job_seeker' });
+    const user = await User.create({ 
+      email, 
+      password_hash: password, 
+      full_name: fullName,
+      role: role || 'job_seeker' 
+    });
     const token = generateToken(user.id);
     res.status(201).json({ success: true, message: 'Đăng ký thành công!', data: { user: user.toJSON(), token } });
   } catch (error) {
@@ -84,6 +124,39 @@ router.put('/me', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Lỗi khi cập nhật user:', error);
     res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật.', error: error.message });
+  }
+});
+
+// Upload avatar
+router.post('/upload-avatar', authenticate, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy file ảnh.' });
+    }
+
+    // Generate avatar URL (relative path from server)
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Update user's avatar_url in database
+    await req.user.update({ avatar_url: avatarUrl });
+
+    res.status(200).json({
+      success: true,
+      message: 'Upload avatar thành công!',
+      data: {
+        avatarUrl: avatarUrl,
+        user: req.user.toJSON()
+      }
+    });
+  } catch (error) {
+    console.error('Lỗi khi upload avatar:', error);
+    // Clean up uploaded file if database update fails
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error deleting file:', err);
+      });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi server khi upload avatar.', error: error.message });
   }
 });
 

@@ -27,6 +27,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (uploaded avatars)
+app.use('/uploads', express.static('uploads'));
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -35,9 +38,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Mount routes
+
 app.use('/api/auth', authRoutes);
-app.use('/api/users', authRoutes); // /api/users/me endpoint
+app.use('/api/users', authRoutes); 
 app.use('/api/companies', companiesRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/applications', applicationsRoutes);
