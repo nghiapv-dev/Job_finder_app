@@ -28,7 +28,7 @@ const SavedJob = sequelize.define('SavedJob', {
   note: {
     type: DataTypes.TEXT,
     allowNull: true,
-    comment: 'Personal note about why saved',
+    comment: 'Ghi chú cá nhân về lý do lưu công việc',
   },
 }, {
   tableName: 'saved_jobs',

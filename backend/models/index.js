@@ -51,7 +51,7 @@ Message.belongsTo(Conversation, { foreignKey: 'conversation_id', as: 'conversati
 User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' });
 Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 
-// User - Conversation (Many-to-Many through ConversationParticipant)
+// Người dùng - Cuộc trò chuyện (Nhiều-nhiều thông qua ConversationParticipant)
 User.belongsToMany(Conversation, { 
   through: ConversationParticipant, 
   foreignKey: 'user_id',

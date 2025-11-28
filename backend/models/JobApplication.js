@@ -33,7 +33,7 @@ const Application = sequelize.define('Application', {
   resume_snapshot_url: {
     type: DataTypes.STRING(255),
     allowNull: true,
-    comment: 'CV version at time of apply',
+    comment: 'Phiên bản CV tại thời điểm nộp đơn',
   },
   cover_letter: {
     type: DataTypes.TEXT,
