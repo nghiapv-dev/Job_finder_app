@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../config/theme/app_colors.dart';
 import '../../../core/utils/storage_service.dart';
+import '../../../core/repositories/auth_repository.dart';
 import '../bloc/auth_bloc.dart';
 import 'dart:convert';
 
@@ -20,8 +23,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _dateOfBirthController = TextEditingController();
   final _addressController = TextEditingController();
   final _occupationController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
   
   bool _isLoading = true;
+  String? _avatarUrl;
+  bool _isUploadingAvatar = false;
 
   @override
   void initState() {
@@ -34,22 +40,33 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       final userString = await StorageService.getUser();
       if (userString != null) {
         final userData = json.decode(userString);
+        print('📊 User data loaded: $userData'); // Debug log
         
         setState(() {
-          _fullNameController.text = userData['full_name'] ?? '';
+          // Try both fullName and full_name (backend might use either)
+          _fullNameController.text = userData['fullName'] ?? userData['full_name'] ?? '';
           _emailController.text = userData['email'] ?? '';
-          _dateOfBirthController.text = userData['date_of_birth'] ?? '';
+          // Try both dateOfBirth and date_of_birth
+          _dateOfBirthController.text = userData['dateOfBirth'] ?? userData['date_of_birth'] ?? '';
           _addressController.text = userData['address'] ?? '';
           _occupationController.text = userData['occupation'] ?? '';
+          // Load avatar URL
+          _avatarUrl = userData['avatar_url'];
           _isLoading = false;
         });
       } else {
+        print('⚠️ No user data found in storage');
         setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      print('Lỗi khi tải dữ liệu người dùng: $e');
+      // If stored user data is invalid JSON (from older saves), remove it
+      try {
+        await StorageService.removeUser();
+        print('Invalid stored user data removed.');
+      } catch (_) {}
       setState(() {
         _isLoading = false;
       });
@@ -64,6 +81,97 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     _addressController.dispose();
     _occupationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleAvatarUpload() async {
+    // Show options: Camera or Gallery
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.primary),
+              title: const Text('Chụp ảnh'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.primary),
+              title: const Text('Chọn từ thư viện'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _isUploadingAvatar = true;
+        });
+
+        // Upload to server
+        final avatarUrl = await _uploadAvatarToServer(image);
+
+        setState(() {
+          _avatarUrl = avatarUrl;
+          _isUploadingAvatar = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tải ảnh lên thành công!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isUploadingAvatar = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi tải ảnh: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String> _uploadAvatarToServer(XFile image) async {
+    try {
+      final authRepo = AuthRepository();
+      final avatarUrl = await authRepo.uploadAvatar(image);
+      return avatarUrl;
+    } catch (e) {
+      throw Exception('Upload failed: $e');
+    }
   }
 
   Future<void> _selectDate() async {
@@ -132,7 +240,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             ),
             const SizedBox(width: 8),
             const Text(
-              'Profile',
+              'Hồ sơ',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -149,7 +257,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             // Cập nhật thành công, chuyển đến home screen
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Profile updated successfully!'),
+                content: Text('Cập nhật hồ sơ thành công!'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -178,44 +286,66 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             child: Column(
               children: [
                 // Avatar upload
-                Stack(
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[100],
-                        border: Border.all(color: AppColors.primary, width: 2),
-                      ),
-                      child: Icon(
-                        Icons.person_outline,
-                        size: 50,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                GestureDetector(
+                  onTap: _isUploadingAvatar ? null : _handleAvatarUpload,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
+                          color: Colors.grey[100],
+                          border: Border.all(color: AppColors.primary, width: 2),
+                          image: _avatarUrl != null
+                              ? DecorationImage(
+                                  image: NetworkImage(
+                                    _avatarUrl!.startsWith('http')
+                                        ? _avatarUrl!
+                                        : 'http://localhost:5000$_avatarUrl',
+                                  ),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 18,
+                        child: _isUploadingAvatar
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : _avatarUrl == null
+                                ? Icon(
+                                    Icons.person_outline,
+                                    size: 50,
+                                    color: Colors.grey[400],
+                                  )
+                                : null,
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Upload Photo Profile',
+                  'Tải lên ảnh hồ sơ',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondary,
@@ -225,14 +355,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 32),
                 
                 // Full Name
-                _buildLabel('Full Name*'),
+                _buildLabel('Họ và tên*'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _fullNameController,
-                  decoration: _buildInputDecoration('Full Name'),
+                  decoration: _buildInputDecoration('Họ và tên'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Full name is required';
+                      return 'Họ và tên là bắt buộc';
                     }
                     return null;
                   },
@@ -250,10 +380,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       .copyWith(suffixIcon: const Icon(Icons.email_outlined)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email is required';
+                      return 'Email là bắt buộc';
                     }
                     if (!value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return 'Vui lòng nhập email hợp lệ';
                     }
                     return null;
                   },
@@ -262,17 +392,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 20),
                 
                 // Date of Birth
-                _buildLabel('Date of birth*'),
+                _buildLabel('Ngày sinh*'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _dateOfBirthController,
                   readOnly: true,
                   onTap: _selectDate,
-                  decoration: _buildInputDecoration('Date of birth')
+                  decoration: _buildInputDecoration('Ngày sinh')
                       .copyWith(suffixIcon: const Icon(Icons.calendar_today_outlined)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Date of birth is required';
+                      return 'Ngày sinh là bắt buộc';
                     }
                     return null;
                   },
@@ -281,14 +411,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 20),
                 
                 // Address
-                _buildLabel('Address*'),
+                _buildLabel('Địa chỉ*'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _addressController,
-                  decoration: _buildInputDecoration('Address'),
+                  decoration: _buildInputDecoration('Địa chỉ'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Address is required';
+                      return 'Địa chỉ là bắt buộc';
                     }
                     return null;
                   },
@@ -297,14 +427,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 20),
                 
                 // Occupation
-                _buildLabel('Occupation*'),
+                _buildLabel('Nghề nghiệp*'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _occupationController,
-                  decoration: _buildInputDecoration('Occupation'),
+                  decoration: _buildInputDecoration('Nghề nghiệp'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Occupation is required';
+                      return 'Nghề nghiệp là bắt buộc';
                     }
                     return null;
                   },
@@ -339,7 +469,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 ),
                               )
                             : const Text(
-                                'Confirm',
+                                'Xác nhận',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,

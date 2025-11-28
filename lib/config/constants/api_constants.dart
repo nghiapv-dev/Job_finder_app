@@ -2,6 +2,7 @@ class ApiConstants {
   // Base URL - Change this to your backend URL
   // localhost for Web/iOS, 10.0.2.2 for Android Emulator
   static const String baseUrl = 'http://localhost:5000/api';
+  static const String serverUrl = 'http://localhost:5000';
   
   // Auth Endpoints
   static const String login = '/auth/login';

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/dio_client.dart';
 import '../utils/storage_service.dart';
 import '../../config/constants/api_constants.dart';
@@ -22,10 +23,14 @@ class AuthRepository {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'];
-        final token = data['token'];
-        
+        final token = data?['token'];
+
+        if (token == null || token is! String) {
+          throw Exception('Login succeeded but server did not return a valid token');
+        }
+
         await StorageService.saveToken(token);
-        
+
         return data; // Trả về toàn bộ object data (chứa user và token)
       } else {
         throw Exception(response.data['message'] ?? 'Login failed');
@@ -52,13 +57,27 @@ class AuthRepository {
       );
 
       if (response.statusCode == 201 && response.data['success'] == true) {
-        final token = response.data['data']['token'];
-        final refreshToken = response.data['data']['refreshToken'];
-        
+        final token = response.data['data']?['token'];
+        final refreshToken = response.data['data']?['refreshToken'];
+        final user = response.data['data']?['user'];
+
+        if (token == null || token is! String) {
+          throw Exception('Registration succeeded but server did not return a valid token');
+        }
+
+        // Save tokens if present
         await StorageService.saveToken(token);
-        await StorageService.saveRefreshToken(refreshToken);
-        
-        return response.data['data']['user'];
+        if (refreshToken != null && refreshToken is String) {
+          await StorageService.saveRefreshToken(refreshToken);
+        }
+
+        // Return a consistent map containing both user and token so callers
+        // (AuthBloc, etc.) can use the same contract as login()
+        return {
+          'user': user,
+          'token': token,
+          if (refreshToken != null && refreshToken is String) 'refreshToken': refreshToken,
+        };
       } else {
         throw Exception(response.data['message'] ?? 'Registration failed');
       }
@@ -212,6 +231,39 @@ class AuthRepository {
   Future<bool> isAuthenticated() async {
     final token = await StorageService.getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  /// Upload avatar image
+  Future<String> uploadAvatar(XFile imageFile) async {
+    try {
+      // Read file as bytes for web compatibility
+      final bytes = await imageFile.readAsBytes();
+      final fileName = imageFile.name;
+
+      // Create FormData with MultipartFile from bytes
+      final formData = FormData.fromMap({
+        'avatar': MultipartFile.fromBytes(
+          bytes,
+          filename: fileName,
+        ),
+      });
+
+      final response = await _dioClient.dio.post(
+        '/auth/upload-avatar',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return response.data['data']['avatarUrl'];
+      } else {
+        throw Exception(response.data['message'] ?? 'Failed to upload avatar');
+      }
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
   }
 
   /// Handle Dio errors

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../core/repositories/auth_repository.dart';
 import '../../../core/utils/storage_service.dart';
+import 'dart:convert';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -40,7 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Kiểm tra null trước khi sử dụng
       if (user != null && token != null) {
         await StorageService.saveToken(token);
-        await StorageService.saveUser(user.toString()); // Cân nhắc dùng jsonEncode
+  await StorageService.saveUser(jsonEncode(user));
 
         emit(AuthAuthenticated(
           user: user,
@@ -67,13 +68,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         fullName: event.fullName,
       );
 
-      await StorageService.saveToken(result['token']);
-      await StorageService.saveUser(result['user'].toString());
+      // Validate response before saving to storage to avoid saving nulls
+      final user = result['user'];
+      final token = result['token'];
 
-      emit(AuthAuthenticated(
-        user: result['user'],
-        token: result['token'],
-      ));
+      if (user != null && token != null) {
+        await StorageService.saveToken(token);
+        await StorageService.saveUser(jsonEncode(user));
+
+        emit(AuthAuthenticated(
+          user: user,
+          token: token,
+        ));
+      } else {
+        emit(const AuthError(message: 'Register response is invalid.'));
+      }
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -87,13 +96,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final result = await authRepository.loginWithGoogle();
 
-      await StorageService.saveToken(result['token']);
-      await StorageService.saveUser(result['user'].toString());
+      final user = result['user'];
+      final token = result['token'];
 
-      emit(AuthAuthenticated(
-        user: result['user'],
-        token: result['token'],
-      ));
+      if (user != null && token != null) {
+        await StorageService.saveToken(token);
+        await StorageService.saveUser(jsonEncode(user));
+
+        emit(AuthAuthenticated(
+          user: user,
+          token: token,
+        ));
+      } else {
+        emit(const AuthError(message: 'Google login response is invalid.'));
+      }
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -107,13 +123,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final result = await authRepository.loginWithFacebook();
 
-      await StorageService.saveToken(result['token']);
-      await StorageService.saveUser(result['user'].toString());
+      final user = result['user'];
+      final token = result['token'];
 
-      emit(AuthAuthenticated(
-        user: result['user'],
-        token: result['token'],
-      ));
+      if (user != null && token != null) {
+        await StorageService.saveToken(token);
+        await StorageService.saveUser(jsonEncode(user));
+
+        emit(AuthAuthenticated(
+          user: user,
+          token: token,
+        ));
+      } else {
+        emit(const AuthError(message: 'Facebook login response is invalid.'));
+      }
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -221,7 +244,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       
       // Lưu thông tin user đã cập nhật vào local storage
-      await StorageService.saveUser(updatedUser.toString());
+  await StorageService.saveUser(jsonEncode(updatedUser));
       
       emit(AuthProfileUpdateSuccess(user: updatedUser));
     } catch (e) {
